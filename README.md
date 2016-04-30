@@ -1,2 +1,2 @@
 # dk-web-authentication
-Form based authentication logic and middlewares
+Form based authentication logic and middleware for zend expressive
