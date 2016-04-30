@@ -11,6 +11,7 @@ namespace N3vrax\DkWebAuthentication;
 use N3vrax\DkAuthentication\Interfaces\AuthenticationInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Zend\Diactoros\Response\RedirectResponse;
 use Zend\Expressive\Router\RouterInterface;
 use Zend\Expressive\Template\TemplateRendererInterface;
 
@@ -31,19 +32,27 @@ class LogoutAction
      */
     protected $authentication;
 
+    /**
+     * @var WebAuthOptions
+     */
+    protected $options;
+
     public function __construct(
         RouterInterface $router,
         TemplateRendererInterface $template,
-        AuthenticationInterface $authentication)
+        AuthenticationInterface $authentication,
+        WebAuthOptions $options)
     {
         $this->router = $router;
         $this->template = $template;
         $this->authentication = $authentication;
+        $this->options = $options;
     }
 
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response, callable $next = null)
     {
-
+        $this->authentication->clearIdentity();
+        return new RedirectResponse($this->router->generateUri($this->options->getAfterLogoutRoute()));
     }
 
 }

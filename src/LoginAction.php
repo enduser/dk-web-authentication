@@ -11,6 +11,8 @@ namespace N3vrax\DkWebAuthentication;
 use N3vrax\DkAuthentication\Interfaces\AuthenticationInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Zend\Diactoros\Response\HtmlResponse;
+use Zend\Diactoros\Response\RedirectResponse;
 use Zend\Expressive\Router\RouterInterface;
 use Zend\Expressive\Template\TemplateRendererInterface;
 
@@ -32,11 +34,6 @@ class LoginAction
     protected $authentication;
 
     /**
-     * @var callable
-     */
-    protected $preAuthCallback;
-
-    /**
      * @var WebAuthOptions
      */
     protected $options;
@@ -45,29 +42,27 @@ class LoginAction
         RouterInterface $router,
         TemplateRendererInterface $template,
         AuthenticationInterface $authentication,
-        WebAuthOptions $options,
-        callable $preAuth = null)
+        WebAuthOptions $options)
     {
         $this->router = $router;
         $this->template = $template;
         $this->authentication = $authentication;
-        $this->preAuthCallback = $preAuth;
         $this->options = $options;
     }
 
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response, callable $next = null)
     {
         $data = [];
-
         if($this->authentication->hasIdentity()) {
-
+            return new RedirectResponse($this->router->generateUri($this->options->getAfterLoginRoute()));
         }
 
         if($request->getMethod() === 'POST')
         {
-            if($this->preAuthCallback && is_callable($this->preAuthCallback))
+            $preAuthCallback = $this->options->getPreAuthCallback();
+            if($preAuthCallback && is_callable($preAuthCallback))
             {
-                $preAuthCallbackResult = call_user_func($this->preAuthCallback, $request, $response);
+                $preAuthCallbackResult = call_user_func($preAuthCallback, $request, $response);
                 //return if pre auth returned a ResponseInterface
                 if($preAuthCallbackResult && $preAuthCallbackResult instanceof ResponseInterface)
                 {
@@ -81,9 +76,16 @@ class LoginAction
                 }
             }
 
+            $data = $request->getParsedBody();
             $result = $this->authentication->authenticate($request, $response);
-
+            if($result->isValid()) {
+                return new RedirectResponse($this->router->generateUri($this->options->getAfterLoginRoute()));
+            }
+            else {
+                $data['message'] = $result->getMessage();
+            }
         }
 
+        return new HtmlResponse($this->template->render($this->options->getLoginTemplateName(), $data));
     }
 }

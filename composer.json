@@ -16,6 +16,7 @@
     "container-interop/container-interop": "^1.1",
     "zendframework/zend-expressive-template": "^1.0",
     "zendframework/zend-expressive-router": "^1.2",
+    "zendframework/zend-diactoros": "^1.3",
     "n3vrax/dk-authentication": "dev-master",
     "n3vrax/dk-error": "dev-master"
   },
