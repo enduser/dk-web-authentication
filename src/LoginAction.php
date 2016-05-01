@@ -8,6 +8,9 @@
 
 namespace N3vrax\DkWebAuthentication;
 
+use N3vrax\DkAuthentication\AuthenticationError;
+use N3vrax\DkAuthentication\AuthenticationResult;
+use N3vrax\DkAuthentication\Exceptions\RuntimeException;
 use N3vrax\DkAuthentication\Interfaces\AuthenticationInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -78,11 +81,23 @@ class LoginAction
 
             $data = $request->getParsedBody();
             $result = $this->authentication->authenticate($request, $response);
+
+            //don't allow false or null authentication results or other types of results
+            if(!$result || ($result && !$result instanceof AuthenticationResult)) {
+                throw new RuntimeException(sprintf("Authentication result must be an instance of %s",
+                    AuthenticationResult::class));
+            }
+
             if($result->isValid()) {
                 return new RedirectResponse($this->router->generateUri($this->options->getAfterLoginRoute()));
             }
             else {
                 $data['message'] = $result->getMessage();
+                //call the auth error handler and let it decide what to do
+                if($next) {
+                    return $next($request, $response, new AuthenticationError(
+                        $result->getResponse()->getStatusCode(), $result->getMessage(), $data));
+                }
             }
         }
 

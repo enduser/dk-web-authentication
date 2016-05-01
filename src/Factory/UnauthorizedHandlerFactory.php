@@ -2,20 +2,19 @@
 /**
  * Created by PhpStorm.
  * User: n3vra
- * Date: 4/30/2016
- * Time: 8:40 PM
+ * Date: 5/1/2016
+ * Time: 3:15 PM
  */
 
 namespace N3vrax\DkWebAuthentication\Factory;
 
 use Interop\Container\ContainerInterface;
-use N3vrax\DkAuthentication\Interfaces\AuthenticationInterface;
-use N3vrax\DkWebAuthentication\LoginAction;
+use N3vrax\DkWebAuthentication\UnauthorizedHandler;
 use N3vrax\DkWebAuthentication\WebAuthOptions;
 use Zend\Expressive\Router\RouterInterface;
 use Zend\Expressive\Template\TemplateRendererInterface;
 
-class LoginActionFactory
+class UnauthorizedHandlerFactory
 {
     public function __invoke(ContainerInterface $container)
     {
@@ -23,18 +22,14 @@ class LoginActionFactory
         $template = $container->has(TemplateRendererInterface::class)
             ? $container->get(TemplateRendererInterface::class)
             : null;
-        $authentication = $container->has(AuthenticationInterface::class)
-            ? $container->get(AuthenticationInterface::class)
-            : null;
-
         $options = $container->has(WebAuthOptions::class)
             ? $container->get(WebAuthOptions::class)
             : new WebAuthOptions();
 
-        if(!$template || !$authentication) {
-            throw new \Exception("Login action requires the template and authentication services");
+        if(!$template) {
+            throw new \Exception("Unauthorized handler requires a template renderer");
         }
 
-        return new LoginAction($router, $template, $authentication, $options);
+        return new UnauthorizedHandler($router, $template, $options);
     }
 }
