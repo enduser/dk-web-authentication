@@ -9,6 +9,7 @@
 namespace N3vrax\DkWebAuthentication\Factory;
 
 use Interop\Container\ContainerInterface;
+use N3vrax\DkWebAuthentication\SessionMessage;
 use N3vrax\DkWebAuthentication\UnauthorizedHandler;
 use N3vrax\DkWebAuthentication\WebAuthOptions;
 use Zend\Expressive\Router\RouterInterface;
@@ -30,6 +31,6 @@ class UnauthorizedHandlerFactory
             throw new \Exception("Unauthorized handler requires a template renderer");
         }
 
-        return new UnauthorizedHandler($router, $template, $options);
+        return new UnauthorizedHandler($router, $template, $options, new SessionMessage());
     }
 }

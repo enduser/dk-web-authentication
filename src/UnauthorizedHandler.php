@@ -11,8 +11,8 @@ namespace N3vrax\DkWebAuthentication;
 use N3vrax\DkAuthentication\AuthenticationError;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Zend\Diactoros\Response\HtmlResponse;
 use Zend\Diactoros\Response\RedirectResponse;
+use Zend\Diactoros\Uri;
 use Zend\Expressive\Router\RouterInterface;
 use Zend\Expressive\Template\TemplateRendererInterface;
 
@@ -34,20 +34,28 @@ class UnauthorizedHandler
     protected $options;
 
     /**
+     * @var SessionMessage
+     */
+    protected $flashMessages;
+
+    /**
      * UnauthorizedHandler constructor.
      * @param RouterInterface $router
      * @param TemplateRendererInterface $template
      * @param WebAuthOptions $options
+     * @param SessionMessage $flashMessages
      */
     public function __construct(
         RouterInterface $router,
         TemplateRendererInterface $template,
-        WebAuthOptions $options
+        WebAuthOptions $options,
+        SessionMessage $flashMessages = null
     )
     {
         $this->template = $template;
         $this->options = $options;
         $this->router = $router;
+        $this->flashMessages = $flashMessages;
     }
 
     /**
@@ -67,29 +75,16 @@ class UnauthorizedHandler
     {
         if($error instanceof AuthenticationError)
         {
-            $data = [];
             if($error->getCode() === 401 || $response->getStatusCode() === 401)
             {
                 $message = empty($error->getMessage())? 'Authorization failure. Try again.' : $error->getMessage();
-                $extra = $error->getExtra() !== null ? $error->getExtra() : null;
-                if(is_array($extra))
-                {
-                    $data = $extra;
-                }
-                if(!isset($data['message'])) {
-                    $data['message'] = $message;
+                if($this->flashMessages) {
+                    $this->flashMessages->addMessage('error', $message);
                 }
 
-                $templateName = $this->options->getUnauthorizedTemplateName();
-                //if no error template set, redirect to login route by default
-                //else display the error template(which can be the same login template with the error message)
-                if(!$templateName) {
-                    return new RedirectResponse($this->router->generateUri($this->options->getLoginRoute()));
-                }
-                else {
-                    return new HtmlResponse(
-                        $this->template->render($templateName, $data));
-                }
+                $uri = new Uri($this->router->generateUri($this->options->getLoginRoute()));
+                $uri = $uri->withQuery('redirect=' . urlencode($request->getUri()));
+                return new RedirectResponse($uri);
             }
         }
 

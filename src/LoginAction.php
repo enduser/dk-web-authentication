@@ -8,7 +8,6 @@
 
 namespace N3vrax\DkWebAuthentication;
 
-use N3vrax\DkAuthentication\AuthenticationError;
 use N3vrax\DkAuthentication\AuthenticationResult;
 use N3vrax\DkAuthentication\Exceptions\RuntimeException;
 use N3vrax\DkAuthentication\Interfaces\AuthenticationInterface;
@@ -16,6 +15,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Zend\Diactoros\Response\HtmlResponse;
 use Zend\Diactoros\Response\RedirectResponse;
+use Zend\Diactoros\Uri;
 use Zend\Expressive\Router\RouterInterface;
 use Zend\Expressive\Template\TemplateRendererInterface;
 
@@ -41,16 +41,23 @@ class LoginAction
      */
     protected $options;
 
+    /**
+     * @var SessionMessage
+     */
+    protected $message;
+
     public function __construct(
         RouterInterface $router,
         TemplateRendererInterface $template,
         AuthenticationInterface $authentication,
-        WebAuthOptions $options)
+        WebAuthOptions $options,
+        SessionMessage $message = null)
     {
         $this->router = $router;
         $this->template = $template;
         $this->authentication = $authentication;
         $this->options = $options;
+        $this->message = $message;
     }
 
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response, callable $next = null)
@@ -89,16 +96,25 @@ class LoginAction
             }
 
             if($result->isValid()) {
-                return new RedirectResponse($this->router->generateUri($this->options->getAfterLoginRoute()));
+                $redirectUri = $this->router->generateUri($this->options->getAfterLoginRoute());
+                if($this->options->getAllowRedirects() === true)
+                {
+                    $params = $request->getQueryParams();
+                    if(isset($params['redirect']) && !empty($params['redirect'])) {
+                        $redirectUri = new Uri(urldecode($params['redirect']));
+                    }
+                }
+                return new RedirectResponse($redirectUri);
             }
             else {
                 $data['message'] = $result->getMessage();
-                //call the auth error handler and let it decide what to do
-                if($next) {
-                    return $next($request, $response, new AuthenticationError(
-                        $result->getResponse()->getStatusCode(), $result->getMessage(), $data));
-                }
             }
+        }
+        //set any session messages if any
+        if($this->message) {
+            $message = $this->message->getMessage('error');
+            if($message && !isset($data['message']))
+                $data['message'] = $message;
         }
 
         return new HtmlResponse($this->template->render($this->options->getLoginTemplateName(), $data));
