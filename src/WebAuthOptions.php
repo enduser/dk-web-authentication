@@ -8,6 +8,7 @@
 
 namespace N3vrax\DkWebAuthentication;
 
+use Interop\Container\ContainerInterface;
 use Zend\Stdlib\AbstractOptions;
 
 class WebAuthOptions extends AbstractOptions
@@ -26,7 +27,7 @@ class WebAuthOptions extends AbstractOptions
 
     protected $allowRedirects = true;
 
-    public function __construct(array $options = [])
+    public function __construct(ContainerInterface $container, array $options = [])
     {
         $error = null;
         if(!isset($options['login_route']) || !is_string($options['login_route']) ||
@@ -55,6 +56,25 @@ class WebAuthOptions extends AbstractOptions
         }
 
         parent::__construct($options);
+
+        //make sure preAuthCallback is converted to a callable
+        //throw exception is not possible
+        $preAuthCallback = $this->getPreAuthCallback();
+        if($preAuthCallback) {
+            if(is_string($preAuthCallback) && $container && $container->has($preAuthCallback)) {
+                $preAuthCallback = $container->get($preAuthCallback);
+            }
+
+            if(is_string($preAuthCallback) && class_exists($preAuthCallback)) {
+                $preAuthCallback = new $preAuthCallback;
+            }
+
+            if(!is_callable($preAuthCallback)) {
+                throw new \Exception("Pre-auth callback must be a valid callable");
+            }
+
+            $this->setPreAuthCallback($preAuthCallback);
+        }
     }
 
     /**

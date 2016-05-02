@@ -8,6 +8,7 @@
 
 namespace N3vraxTest\DkWebAuthentication;
 
+use Interop\Container\ContainerInterface;
 use N3vrax\DkWebAuthentication\WebAuthOptions;
 
 class WebAuthOptionsTest extends \PHPUnit_Framework_TestCase
@@ -17,7 +18,8 @@ class WebAuthOptionsTest extends \PHPUnit_Framework_TestCase
      */
     public function testMissingLoginRoute()
     {
-        new WebAuthOptions([
+        $container = $this->prophesize(ContainerInterface::class)->reveal();
+        new WebAuthOptions($container, [
             'login_route' => '',
             'logout_route' => 'logout',
             'login_template_name' => 'login',
@@ -31,7 +33,8 @@ class WebAuthOptionsTest extends \PHPUnit_Framework_TestCase
      */
     public function testMissingLogoutRoute()
     {
-        new WebAuthOptions([
+        $container = $this->prophesize(ContainerInterface::class)->reveal();
+        new WebAuthOptions($container, [
             'login_route' => 'login',
             'logout_route' => '',
             'login_template_name' => 'login',
@@ -45,7 +48,8 @@ class WebAuthOptionsTest extends \PHPUnit_Framework_TestCase
      */
     public function testMissingLoginTemplateName()
     {
-        new WebAuthOptions([
+        $container = $this->prophesize(ContainerInterface::class)->reveal();
+        new WebAuthOptions($container, [
             'login_route' => 'login',
             'logout_route' => 'logout',
             'login_template_name' => '',
@@ -59,7 +63,8 @@ class WebAuthOptionsTest extends \PHPUnit_Framework_TestCase
      */
     public function testMissingAfterLoginRoute()
     {
-        new WebAuthOptions([
+        $container = $this->prophesize(ContainerInterface::class)->reveal();
+        new WebAuthOptions($container, [
             'login_route' => 'login',
             'logout_route' => 'logout',
             'login_template_name' => 'login',
@@ -73,7 +78,8 @@ class WebAuthOptionsTest extends \PHPUnit_Framework_TestCase
      */
     public function testMissingAfterLogoutRoute()
     {
-        new WebAuthOptions([
+        $container = $this->prophesize(ContainerInterface::class)->reveal();
+        new WebAuthOptions($container, [
             'login_route' => 'login',
             'logout_route' => 'logout',
             'login_template_name' => 'login',
@@ -84,13 +90,13 @@ class WebAuthOptionsTest extends \PHPUnit_Framework_TestCase
 
     public function testInitialization()
     {
-        $options = new WebAuthOptions([
+        $container = $this->prophesize(ContainerInterface::class)->reveal();
+        $options = new WebAuthOptions($container, [
             'login_route' => 'login',
             'logout_route' => 'logout',
             'login_template_name' => 'login',
             'after_login_route' => 'home',
-            'after_logout_route' => 'login',
-            'pre_auth_callback' => 'foo'
+            'after_logout_route' => 'login'
         ]);
 
         $this->assertEquals('login', $options->getLoginRoute());
@@ -98,7 +104,6 @@ class WebAuthOptionsTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('login', $options->getLoginTemplateName());
         $this->assertEquals('home', $options->getAfterLoginRoute());
         $this->assertEquals('login', $options->getAfterLogoutRoute());
-        $this->assertEquals('foo', $options->getPreAuthCallback());
         $this->assertEquals(true, $options->getAllowRedirects());
     }
 }
