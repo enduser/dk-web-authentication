@@ -19,9 +19,9 @@ class WebAuthOptionsFactory
         $config = isset($config['authentication']) ? $config['authentication'] : [];
         if(is_array($config) && isset($config['web']))
         {
-            return new WebAuthOptions($config['web']);
+            return new WebAuthOptions($container, $config['web']);
         }
 
-        return new WebAuthOptions();
+        return new WebAuthOptions($container);
     }
 }
