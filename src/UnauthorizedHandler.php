@@ -77,7 +77,7 @@ class UnauthorizedHandler
         {
             if($error->getCode() === 401 || $response->getStatusCode() === 401)
             {
-                $message = empty($error->getMessage())? 'Authorization failure. Try again.' : $error->getMessage();
+                $message = empty($error->getMessage())? 'Authorization failure. ' : $error->getMessage();
                 if($this->flashMessages) {
                     $this->flashMessages->addMessage('error', $message);
                 }
