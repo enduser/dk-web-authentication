@@ -43,20 +43,28 @@ class LoginAction
     /**
      * @var AuthFlashMessage
      */
-    protected $message;
+    protected $messages;
 
+    /**
+     * LoginAction constructor.
+     * @param RouterInterface $router
+     * @param TemplateRendererInterface $template
+     * @param AuthenticationInterface $authentication
+     * @param WebAuthOptions $options
+     * @param AuthFlashMessage|null $messages
+     */
     public function __construct(
         RouterInterface $router,
         TemplateRendererInterface $template,
         AuthenticationInterface $authentication,
         WebAuthOptions $options,
-        AuthFlashMessage $message = null)
+        AuthFlashMessage $messages = null)
     {
         $this->router = $router;
         $this->template = $template;
         $this->authentication = $authentication;
         $this->options = $options;
-        $this->message = $message;
+        $this->messages = $messages;
     }
 
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response, callable $next = null)
@@ -111,15 +119,15 @@ class LoginAction
                     return new RedirectResponse($redirectUri);
                 }
                 else {
-                    $data['message'] = $result->getMessage();
+                    $data['messages'] = $result->getMessage();
                 }
             }
         }
         //set any session messages if any
-        if($this->message) {
-            $message = $this->message->getMessage('error');
-            if($message && !isset($data['message']))
-                $data['message'] = $message;
+        if($this->messages) {
+            $message = $this->messages->getMessage('error');
+            if($message && !isset($data['messages']))
+                $data['messages'] = $message;
         }
 
         return new HtmlResponse($this->template->render($this->options->getLoginTemplateName(), $data));
