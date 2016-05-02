@@ -94,7 +94,7 @@ class LoginAction
                 $data['message'] = 'Authentication failure. Missing or invalid credentials';
                 return new HtmlResponse($this->template->render($this->options->getLoginTemplateName(), $data));
             }
-            
+
             //don't allow false or null authentication results or other types of results
             if(!$result)
             {
