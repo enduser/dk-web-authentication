@@ -9,7 +9,6 @@
 namespace N3vrax\DkWebAuthentication;
 
 use N3vrax\DkAuthentication\AuthenticationResult;
-use N3vrax\DkAuthentication\Exceptions\RuntimeException;
 use N3vrax\DkAuthentication\Interfaces\AuthenticationInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -90,25 +89,30 @@ class LoginAction
             $result = $this->authentication->authenticate($request, $response);
 
             //don't allow false or null authentication results or other types of results
-            if(!$result || ($result && !$result instanceof AuthenticationResult)) {
-                throw new RuntimeException(sprintf("Web Auth: authentication result must be an instance of %s.".
-                    "Make sure you've prepared the request according to the auth adapter used",
+            if(!$result)
+            {
+                throw new \Exception("Web auth: authentication result cannot be empty. ".
+                    "Make sure you have prepared the requests according to the authentication adapter needs");
+            }
+            else if($result && !$result instanceof AuthenticationResult) {
+                throw new \Exception(sprintf("Web auth: authentication result must be an instance of %s",
                     AuthenticationResult::class));
             }
-
-            if($result->isValid()) {
-                $redirectUri = $this->router->generateUri($this->options->getAfterLoginRoute());
-                if($this->options->getAllowRedirects() === true)
-                {
-                    $params = $request->getQueryParams();
-                    if(isset($params['redirect']) && !empty($params['redirect'])) {
-                        $redirectUri = new Uri(urldecode($params['redirect']));
-                    }
-                }
-                return new RedirectResponse($redirectUri);
-            }
             else {
-                $data['message'] = $result->getMessage();
+                if($result->isValid()) {
+                    $redirectUri = $this->router->generateUri($this->options->getAfterLoginRoute());
+                    if($this->options->getAllowRedirects() === true)
+                    {
+                        $params = $request->getQueryParams();
+                        if(isset($params['redirect']) && !empty($params['redirect'])) {
+                            $redirectUri = new Uri(urldecode($params['redirect']));
+                        }
+                    }
+                    return new RedirectResponse($redirectUri);
+                }
+                else {
+                    $data['message'] = $result->getMessage();
+                }
             }
         }
         //set any session messages if any
