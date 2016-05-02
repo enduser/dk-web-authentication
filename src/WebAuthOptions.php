@@ -31,23 +31,23 @@ class WebAuthOptions extends AbstractOptions
         $error = null;
         if(!isset($options['login_route']) || !is_string($options['login_route']) ||
             empty($options['login_route'])) {
-            $error = 'Web auth login route must be specified as a valid string';
+            $error = 'Web auth: login route must be specified as a valid string';
         }
         if(!isset($options['logout_route']) || !is_string($options['logout_route']) ||
             empty($options['logout_route'])) {
-            $error = 'Web auth logout route must be specified as a valid string';
+            $error = 'Web auth: logout route must be specified as a valid string';
         }
         if(!isset($options['login_template_name']) || !is_string($options['login_template_name']) ||
             empty($options['login_template_name'])) {
-            $error = 'Web auth login template name is required';
+            $error = 'Web auth: login template name is required';
         }
         if(!isset($options['after_login_route']) || !is_string($options['after_login_route']) ||
             empty($options['after_login_route'])) {
-            $error = 'Web auth after login route is required';
+            $error = 'Web auth: after login route is required';
         }
         if(!isset($options['after_logout_route']) || !is_string($options['after_logout_route']) ||
             empty($options['after_logout_route'])) {
-            $error = 'Web auth after logout route is required';
+            $error = 'Web auth: after logout route is required';
         }
 
         if($error) {
