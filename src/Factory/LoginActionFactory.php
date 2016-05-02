@@ -30,7 +30,7 @@ class LoginActionFactory
 
         $options = $container->has(WebAuthOptions::class)
             ? $container->get(WebAuthOptions::class)
-            : new WebAuthOptions();
+            : new WebAuthOptions($container);
 
         if(!$template || !$authentication) {
             throw new \Exception("Login action requires the template and authentication services");

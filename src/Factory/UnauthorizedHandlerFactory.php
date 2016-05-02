@@ -25,7 +25,7 @@ class UnauthorizedHandlerFactory
             : null;
         $options = $container->has(WebAuthOptions::class)
             ? $container->get(WebAuthOptions::class)
-            : new WebAuthOptions();
+            : new WebAuthOptions($container);
 
         if(!$template) {
             throw new \Exception("Unauthorized handler requires a template renderer");
