@@ -42,7 +42,7 @@ class LoginAction
     protected $options;
 
     /**
-     * @var SessionMessage
+     * @var AuthFlashMessage
      */
     protected $message;
 
@@ -51,7 +51,7 @@ class LoginAction
         TemplateRendererInterface $template,
         AuthenticationInterface $authentication,
         WebAuthOptions $options,
-        SessionMessage $message = null)
+        AuthFlashMessage $message = null)
     {
         $this->router = $router;
         $this->template = $template;

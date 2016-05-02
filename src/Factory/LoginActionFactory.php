@@ -10,8 +10,8 @@ namespace N3vrax\DkWebAuthentication\Factory;
 
 use Interop\Container\ContainerInterface;
 use N3vrax\DkAuthentication\Interfaces\AuthenticationInterface;
+use N3vrax\DkWebAuthentication\AuthFlashMessage;
 use N3vrax\DkWebAuthentication\LoginAction;
-use N3vrax\DkWebAuthentication\SessionMessage;
 use N3vrax\DkWebAuthentication\WebAuthOptions;
 use Zend\Expressive\Router\RouterInterface;
 use Zend\Expressive\Template\TemplateRendererInterface;
@@ -36,6 +36,6 @@ class LoginActionFactory
             throw new \Exception("Login action requires the template and authentication services");
         }
 
-        return new LoginAction($router, $template, $authentication, $options, new SessionMessage());
+        return new LoginAction($router, $template, $authentication, $options, new AuthFlashMessage());
     }
 }

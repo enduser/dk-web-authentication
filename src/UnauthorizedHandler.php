@@ -34,7 +34,7 @@ class UnauthorizedHandler
     protected $options;
 
     /**
-     * @var SessionMessage
+     * @var AuthFlashMessage
      */
     protected $flashMessages;
 
@@ -43,13 +43,13 @@ class UnauthorizedHandler
      * @param RouterInterface $router
      * @param TemplateRendererInterface $template
      * @param WebAuthOptions $options
-     * @param SessionMessage $flashMessages
+     * @param AuthFlashMessage $flashMessages
      */
     public function __construct(
         RouterInterface $router,
         TemplateRendererInterface $template,
         WebAuthOptions $options,
-        SessionMessage $flashMessages = null
+        AuthFlashMessage $flashMessages = null
     )
     {
         $this->template = $template;

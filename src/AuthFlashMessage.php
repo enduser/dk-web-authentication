@@ -8,11 +8,11 @@
 
 namespace N3vrax\DkWebAuthentication;
 
-class SessionMessage
+class AuthFlashMessage
 {
     protected $storage;
 
-    protected $storageKey = 'auth_messages';
+    protected $storageKey = 'dk_auth_messages';
 
     protected $fromPrevious = [];
 
@@ -21,7 +21,7 @@ class SessionMessage
     public function __construct()
     {
         if(!isset($_SESSION)) {
-            throw new \Exception("SessionMessage requires the session to be started");
+            throw new \Exception("AuthFlashMessage requires the session to be started");
         }
 
         $this->storage = &$_SESSION;
