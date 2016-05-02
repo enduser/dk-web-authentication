@@ -91,7 +91,8 @@ class LoginAction
 
             //don't allow false or null authentication results or other types of results
             if(!$result || ($result && !$result instanceof AuthenticationResult)) {
-                throw new RuntimeException(sprintf("Authentication result must be an instance of %s",
+                throw new RuntimeException(sprintf("Web Auth: authentication result must be an instance of %s.".
+                    "Make sure you've prepared the request according to the auth adapter used",
                     AuthenticationResult::class));
             }
 
