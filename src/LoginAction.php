@@ -86,8 +86,15 @@ class LoginAction
             }
 
             $data = $request->getParsedBody();
-            $result = $this->authentication->authenticate($request, $response);
-
+            //catch any exceptions that authentication might throw and convert them to nice auth messages
+            try {
+                $result = $this->authentication->authenticate($request, $response);
+            }
+            catch(\Exception $ex) {
+                $data['message'] = 'Authentication failure. Missing or invalid credentials';
+                return new HtmlResponse($this->template->render($this->options->getLoginTemplateName(), $data));
+            }
+            
             //don't allow false or null authentication results or other types of results
             if(!$result)
             {
