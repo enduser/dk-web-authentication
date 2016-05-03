@@ -9,6 +9,7 @@
 namespace N3vrax\DkWebAuthentication;
 
 use N3vrax\DkAuthentication\AuthenticationError;
+use N3vrax\DkError\AbstractErrorHandler;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Zend\Diactoros\Response\RedirectResponse;
@@ -16,7 +17,7 @@ use Zend\Diactoros\Uri;
 use Zend\Expressive\Router\RouterInterface;
 use Zend\Expressive\Template\TemplateRendererInterface;
 
-class UnauthorizedHandler
+class UnauthorizedHandler extends AbstractErrorHandler
 {
     /**
      * @var RouterInterface
@@ -56,6 +57,9 @@ class UnauthorizedHandler
         $this->options = $options;
         $this->router = $router;
         $this->flashMessages = $flashMessages;
+        //we dont need a response strategy
+        //we'll handle 401 error and leave others to reach the final handler with the correct status code
+        parent::__construct(null);
     }
 
     /**
@@ -73,24 +77,24 @@ class UnauthorizedHandler
         callable $next = null
     )
     {
-        if($error instanceof AuthenticationError)
-        {
-            if($error->getCode() === 401 || $response->getStatusCode() === 401)
-            {
-                $message = empty($error->getMessage())? 'Authorization failure. ' : $error->getMessage();
-                if($this->flashMessages) {
-                    $this->flashMessages->addMessage('error', $message);
-                }
+        if($error instanceof AuthenticationError) {
+            $message = empty($error->getMessage()) ? 'Authorization failure. Check your credentials and try again'
+                : $error->getMessage();
 
-                $uri = new Uri($this->router->generateUri($this->options->getLoginRoute()));
-                $uri = $uri->withQuery('redirect=' . urlencode($request->getUri()));
-                return new RedirectResponse($uri);
+            //add a flash message in case the login page displays errors
+            if ($this->flashMessages) {
+                $this->flashMessages->addMessage('error', $message);
             }
+
+            $uri = new Uri($this->router->generateUri($this->options->getLoginRoute()));
+            $uri = $uri->withQuery('redirect=' . urlencode($request->getUri()));
+            return new RedirectResponse($uri);
         }
 
-        if($next)
-            return $next($request, $response, $error);
-        else return $response;
+        //the parent will check for other types of Error class
+        //in this case, as we don't have a response strategy defined, it will call next with the modified response status code
+        //for other types of errors, it will call next with nothing modified
+        return parent::__invoke($error, $request, $response, $next);
     }
 
 }
