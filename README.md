@@ -121,7 +121,9 @@ Up until now, all the configuration was meant to register dependencies with zend
         //the following is optional, it is a callback to be called before authentication happens
         //if not given, no action is performed before auth
         //this is the place where you can take credentials from POST data and validate and prepare it for the auth adapter
-        'pre_auth_callback' => 'Some callable service name'
+        'pre_auth_callback' => 'Some callable service name',
+        //enable wanted url redirect - after login go to the requested page feature, optional, enabled by default
+        'allow_redirects' => true
     ]
 ]
 ```
