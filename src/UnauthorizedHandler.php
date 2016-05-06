@@ -87,7 +87,9 @@ class UnauthorizedHandler extends AbstractErrorHandler
             }
 
             $uri = new Uri($this->router->generateUri($this->options->getLoginRoute()));
-            $uri = $uri->withQuery('redirect=' . urlencode($request->getUri()));
+            if($this->options->getAllowRedirects())
+                $uri = $uri->withQuery('redirect=' . urlencode($request->getUri()));
+            
             return new RedirectResponse($uri);
         }
 
