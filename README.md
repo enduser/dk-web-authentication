@@ -146,7 +146,7 @@ You have 3 posibilities regarding what can you return from this callable
 
 Regardless of what engine you use, the login template you define will possibly received the following data
 * `messages` - variable containing authentication error messages as array. You should display them on top the the login form in red.
-* `identity` - variable containing the identity the user has typed. This is usefull if credentials were invalid and you want to keep the previous erroneous username/email/etc. printed in the form
+* any form data previously sent, in case you want to re-display the identity, password etc.
 
 Here's a complete login.phtml example using Plates as renderer
 ```html
