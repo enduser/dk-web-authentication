@@ -8,8 +8,6 @@
 
 namespace N3vrax\DkWebAuthentication;
 
-use N3vrax\DkAuthentication\AuthenticationError;
-use N3vrax\DkError\AbstractErrorHandler;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Zend\Diactoros\Response\RedirectResponse;
@@ -17,7 +15,7 @@ use Zend\Diactoros\Uri;
 use Zend\Expressive\Router\RouterInterface;
 use Zend\Expressive\Template\TemplateRendererInterface;
 
-class UnauthorizedHandler extends AbstractErrorHandler
+class UnauthorizedHandler
 {
     /**
      * @var RouterInterface
@@ -39,6 +37,8 @@ class UnauthorizedHandler extends AbstractErrorHandler
      */
     protected $flashMessages;
 
+    protected $authenticationErrorCodes = [401, 407];
+
     /**
      * UnauthorizedHandler constructor.
      * @param RouterInterface $router
@@ -57,9 +57,6 @@ class UnauthorizedHandler extends AbstractErrorHandler
         $this->options = $options;
         $this->router = $router;
         $this->flashMessages = $flashMessages;
-        //we dont need a response strategy
-        //we'll handle 401 error and leave others to reach the final handler with the correct status code
-        parent::__construct(null);
     }
 
     /**
@@ -77,26 +74,41 @@ class UnauthorizedHandler extends AbstractErrorHandler
         callable $next = null
     )
     {
-        if($error instanceof AuthenticationError) {
-            $message = empty($error->getMessage()) ? 'Authorization failure. Check your credentials and try again'
-                : $error->getMessage();
+        if(in_array($response->getStatusCode(), $this->authenticationErrorCodes))
+        {
+            $messages = [];
+            if(is_array($error)) {
+                foreach ($error as $e) {
+                    if(is_string($e)) {
+                        $messages[] = $e;
+                    }
+                }
+            }
+            else if(is_string($error)) {
+                $messages[] = $error;
+            }
+
+            $messages = empty($messages)
+                ? ['Authorization failure. Check your credentials and try again']
+                : $messages;
 
             //add a flash message in case the login page displays errors
             if ($this->flashMessages) {
-                $this->flashMessages->addMessage('error', $message);
+                $this->flashMessages->addMessage('error', $messages);
             }
 
             $uri = new Uri($this->router->generateUri($this->options->getLoginRoute()));
             if($this->options->getAllowRedirects())
                 $uri = $uri->withQuery('redirect=' . urlencode($request->getUri()));
-            
+
             return new RedirectResponse($uri);
         }
 
-        //the parent will check for other types of Error class
-        //in this case, as we don't have a response strategy defined, it will call next with the modified response status code
-        //for other types of errors, it will call next with nothing modified
-        return parent::__invoke($error, $request, $response, $next);
+        if($next) {
+            return $next($request, $response, $error);
+        }
+
+        return $response;
     }
 
 }
