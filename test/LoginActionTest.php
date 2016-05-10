@@ -8,7 +8,7 @@
 
 namespace N3vraxTest\DkWebAuthentication;
 
-use N3vrax\DkAuthentication\Interfaces\AuthenticationInterface;
+use N3vrax\DkAuthentication\Authentication\AuthenticationInterface;
 use N3vrax\DkWebAuthentication\LoginAction;
 use N3vrax\DkWebAuthentication\WebAuthOptions;
 use Psr\Http\Message\ResponseInterface;

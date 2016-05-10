@@ -8,7 +8,7 @@
 
 namespace N3vrax\DkWebAuthentication;
 
-use N3vrax\DkAuthentication\Interfaces\AuthenticationInterface;
+use N3vrax\DkAuthentication\Authentication\AuthenticationInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Zend\Diactoros\Response\RedirectResponse;
