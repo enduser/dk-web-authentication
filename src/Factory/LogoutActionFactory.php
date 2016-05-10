@@ -9,7 +9,7 @@
 namespace N3vrax\DkWebAuthentication\Factory;
 
 use Interop\Container\ContainerInterface;
-use N3vrax\DkAuthentication\Interfaces\AuthenticationInterface;
+use N3vrax\DkAuthentication\Authentication\AuthenticationInterface;
 use N3vrax\DkWebAuthentication\LogoutAction;
 use N3vrax\DkWebAuthentication\WebAuthOptions;
 use Zend\Expressive\Router\RouterInterface;

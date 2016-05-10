@@ -9,7 +9,7 @@
 namespace N3vrax\DkWebAuthentication\Factory;
 
 use Interop\Container\ContainerInterface;
-use N3vrax\DkAuthentication\Interfaces\AuthenticationInterface;
+use N3vrax\DkAuthentication\Authentication\AuthenticationInterface;
 use N3vrax\DkWebAuthentication\AuthFlashMessage;
 use N3vrax\DkWebAuthentication\LoginAction;
 use N3vrax\DkWebAuthentication\WebAuthOptions;
