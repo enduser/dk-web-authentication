@@ -94,7 +94,9 @@ class UnauthorizedHandler
 
             //add a flash message in case the login page displays errors
             if ($this->flashMessages) {
-                $this->flashMessages->addMessage('error', $messages);
+                foreach ($messages as $message) {
+                    $this->flashMessages->addMessage('error', $message);
+                }
             }
 
             $uri = new Uri($this->router->generateUri($this->options->getLoginRoute()));
